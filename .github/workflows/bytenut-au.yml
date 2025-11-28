@@ -15,6 +15,7 @@ permissions:
 jobs:
   auto-login:
     runs-on: ubuntu-22.04
+    timeout-minutes: 10
     
     steps:
     - name: Checkout private repository
@@ -79,3 +80,4 @@ jobs:
       with:
         repository: ${{ github.repository }}
         older-than-seconds: 86400  # 删除24小时前的记录
+
