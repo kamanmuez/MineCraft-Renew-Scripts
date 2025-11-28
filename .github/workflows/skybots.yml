@@ -49,7 +49,6 @@ jobs:
       
       - name: 🤖 运行 SkyBots 自动化脚本
         env:
-          SKYBOTS_DISCORD_SESSION: ${{ secrets.SKYBOTS_DISCORD_SESSION }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         working-directory: scripts
