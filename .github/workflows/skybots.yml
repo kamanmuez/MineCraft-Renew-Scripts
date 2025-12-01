@@ -26,6 +26,8 @@ jobs:
           path: scripts
       
       - name: 🌐 设置 WARP
+        continue-on-error: true
+        timeout-minutes: 5
         uses: fscarmen/warp-on-actions@v1.4
         with:
           stack: dual
