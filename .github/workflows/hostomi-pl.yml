@@ -26,7 +26,7 @@ jobs:
     - name: Set up WARP
       continue-on-error: true
       timeout-minutes: 3
-      uses: fscarmen/warp-on-actions@v1.4
+      uses: fscarmen/warp-on-actions@v1.3
       with:
         stack: dual
         mode: wireguard
