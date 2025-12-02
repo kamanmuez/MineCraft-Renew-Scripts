@@ -22,14 +22,6 @@ jobs:
         repository: kamanmuez/Minestrator-Auto-Restart  # 替换为你的私有仓库名称 username/repo-name
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}  # 需要有读取私库权限的 PAT
         path: scripts
-
-    - name: Set up WARP
-      continue-on-error: true
-      timeout-minutes: 3
-      uses: fscarmen/warp-on-actions@v1.4
-      with:
-        stack: dual
-        mode: wireguard
     
     - name: Set up Python
       uses: actions/setup-python@v5
