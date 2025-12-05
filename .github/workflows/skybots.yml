@@ -25,14 +25,6 @@ jobs:
           token: ${{ secrets.PRIVATE_REPO_TOKEN }}
           path: scripts
       
-      - name: 🌐 设置 WARP
-        continue-on-error: true
-        timeout-minutes: 3
-        uses: fscarmen/warp-on-actions@v1.4
-        with:
-          stack: dual
-          mode: wireguard
-      
       - name: 🐍 设置 Python 环境
         uses: actions/setup-python@v5
         with:
