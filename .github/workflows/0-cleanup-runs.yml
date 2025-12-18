@@ -34,12 +34,10 @@ jobs:
     - name: Generate README.md with run status
       run: |
         cat > README.md << EOF
-        # Workflow Run Status
+        # Workflow Run Cleanup
         
         | 项目 | 值 |
         |------|-----|
-        | 工作流名称 | ${{ github.workflow }} |
-        | 运行编号 | #${{ github.run_number }} |
         | 运行时间 | $(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S') |
         | 触发方式 | ${{ github.event_name }} |
         | 运行状态 | ✅ 成功 |
