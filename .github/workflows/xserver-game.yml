@@ -8,11 +8,7 @@ on:
 
 jobs:
   auto-login:
-    runs-on: ubuntu-22.04
-    
-    permissions:
-      actions: write
-    
+    runs-on: ubuntu-22.04   
     timeout-minutes: 15
     
     steps:
@@ -60,11 +56,3 @@ jobs:
         path: scripts/*.png
         retention-days: 7
         if-no-files-found: ignore
-        
-    - name: Clean up old workflow runs
-      uses: MajorScruffy/delete-old-workflow-runs@v0.3.0
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      with:
-        repository: ${{ github.repository }}
-        older-than-seconds: 86400  # 删除24小时前的工作流记录
