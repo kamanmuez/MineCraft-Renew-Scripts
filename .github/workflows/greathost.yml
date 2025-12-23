@@ -39,3 +39,15 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         working-directory: scripts
         run: python main.py
+        continue-on-error: true
+
+      - name: Upload debug files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-files
+          path: |
+            scripts/error_screenshot.png
+            scripts/*.json
+          if-no-files-found: ignore
+          retention-days: 7
