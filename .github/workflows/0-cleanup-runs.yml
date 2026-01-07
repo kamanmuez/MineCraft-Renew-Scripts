@@ -1,9 +1,9 @@
 name: A Cleanup Workflow Runs
 
 on:
-  # 每8小时清理一次
+  # 每6小时清理一次
   schedule:
-    - cron: '0 */8 * * *'
+    - cron: '0 */6 * * *'
   
   # 手动触发
   workflow_dispatch:
