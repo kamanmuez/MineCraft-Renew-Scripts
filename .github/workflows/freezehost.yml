@@ -2,9 +2,8 @@ name: FreezeHost Auto Renew
 
 on:
   schedule:
-    # 每天运行一次，UTC 时间 04:00（北京时间 12:00）
     - cron: '0 4 * * *'
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
 
 jobs:
   renew:
@@ -12,29 +11,31 @@ jobs:
     timeout-minutes: 10
     
     steps:
-    - name: Checkout private script repository
+    - name: Checkout Private Repo
       uses: actions/checkout@v4
       with:
-        repository: kamanmuez/FreezeHost-Auto-Renew  # 私库地址
+        repository: kamanmuez/FreezeHost-Auto-Renew
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
         path: scripts
     
-    - name: Set up Python
+    - name: Setup Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+        cache: 'pip'
+        cache-dependency-path: 'scripts/requirements.txt'
     
-    - name: Install Python dependencies
-      working-directory: scripts
-      run: pip install -r requirements.txt
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r scripts/requirements.txt
     
-    - name: Install Playwright browsers
-      run: playwright install chromium
+    - name: Install Playwright Browser
+      run: |
+        playwright install chromium
+        playwright install-deps
     
-    - name: Install Playwright system dependencies
-      run: playwright install-deps chromium || true
-    
-    - name: Run renew script
+    - name: Run FreezeHost Script
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -42,10 +43,28 @@ jobs:
       working-directory: scripts
       run: python main.py
     
-    - name: Upload debug screenshots
-      if: always()
+    - name: Commit Updated Session
+      if: success()
+      working-directory: scripts
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add FREEZEHOST_DISCORD_SESSION.json
+        git diff --staged --quiet || git commit -m "Update Discord session [skip ci]"
+        git push || echo "No changes to push"
+    
+    - name: Upload Error Screenshots
+      if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: debug-screenshots-${{ github.run_number }}
-        path: scripts/debug_*.png
+        name: error-screenshots
+        path: scripts/screenshots/
         if-no-files-found: ignore
+    
+    - name: Failure Notification
+      if: failure()
+      run: |
+        echo "FreezeHost script failed"
+        echo "Time: $(date)"
+        echo "Workflow: ${{ github.workflow }}"
+        echo "Run ID: ${{ github.run_id }}"
