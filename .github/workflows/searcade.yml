@@ -25,6 +25,14 @@ jobs:
           repository: kamanmuez/Searcade-Auto-Login  # 格式: username/repo-name
           token: ${{ secrets.PRIVATE_REPO_TOKEN }}
           path: scripts
+
+      - name: Set up WARP
+        continue-on-error: true
+        timeout-minutes: 3
+        uses: fscarmen/warp-on-actions@v1.4
+        with:
+          stack: dual
+          mode: wireguard
       
       - name: Set up Python
         uses: actions/setup-python@v5
