@@ -25,8 +25,9 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        working-directory: scripts
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium selenium-wire blinker==1.4
 
       - name: Run script
         working-directory: scripts
@@ -41,6 +42,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: screenshots
-          path: screenshots/
+          path: scripts/screenshots/
           if-no-files-found: ignore
           retention-days: 7
