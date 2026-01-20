@@ -20,7 +20,7 @@ jobs:
     - name: Checkout private repository
       uses: actions/checkout@v4
       with:
-        repository: muez666/ByteNut-Auto-Renew
+        repository: ${{ github.repository_owner }}/ByteNut-Auto-Renew
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
         path: scripts
 
