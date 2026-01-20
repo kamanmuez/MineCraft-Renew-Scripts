@@ -15,7 +15,7 @@ jobs:
       - name: Checkout private repo
         uses: actions/checkout@v4
         with:
-          repository: muez666/OriHost-Auto-Renew  # 私库位置，格式: username/repo-name
+          repository: ${{ github.repository_owner }}/OriHost-Auto-Renew  # 私库位置，格式: username/repo-name
           token: ${{ secrets.PRIVATE_REPO_TOKEN }}
           path: scripts
       
