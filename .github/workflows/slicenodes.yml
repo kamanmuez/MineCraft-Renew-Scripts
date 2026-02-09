@@ -1,4 +1,4 @@
-name: SliceNodes Auto Renew
+name: SliceNodes Auto Renewal
 
 on:
   schedule:
@@ -19,16 +19,16 @@ jobs:
           token: ${{ secrets.PRIVATE_REPO_TOKEN }}  # 需要有读取私库权限的 PAT
           path: scripts
       
-      - name: Check dependencies
-        run: |
-          curl --version
-          bash --version
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
       
-      - name: Setup environment
+      - name: Install dependencies
         working-directory: scripts
         run: |
-          chmod +x renew.sh
-          mkdir -p renew_data
+          pip install -r requirements.txt
       
       - name: Run renewal script
         env:
@@ -36,14 +36,13 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TZ: Asia/Shanghai
         working-directory: scripts
-        run: bash renew.sh
+        run: python renew.py
       
       - name: Upload renewal logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: renew-data-${{ github.run_number }}
-          path: |
-            scripts/renew_data/*.json
+          path: scripts/renew_data/*.json
           retention-days: 30
           if-no-files-found: ignore
