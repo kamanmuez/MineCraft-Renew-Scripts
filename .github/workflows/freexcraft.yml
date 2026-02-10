@@ -1,0 +1,46 @@
+name: FreeXCraft Auto Renew
+
+on:
+  schedule:
+    # 每小时的30分执行一次
+    - cron: '30 * * * *'
+  workflow_dispatch:  # 支持手动触发
+
+jobs:
+  renew:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/FreeXCraft-Auto-Renew
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          path: scripts
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        working-directory: scripts
+        run: pip install -r requirements.txt
+      
+      - name: Install Playwright browsers
+        run: playwright install chromium
+      
+      - name: Run renew script
+        working-directory: scripts
+        env:
+          REMEMBER_WEB_COOKIE: ${{ secrets.REMEMBER_WEB_COOKIE }}
+          SERVER_UUID: ${{ secrets.SERVER_UUID }}
+        run: python main.py
+      
+      - name: Upload response JSON
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: renew-response
+          path: scripts/renew.json
+          retention-days: 7
