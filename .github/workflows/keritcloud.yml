@@ -36,11 +36,13 @@ jobs:
           SOCKS_PROXY_URL: ${{ secrets.SOCKS_PROXY_URL }}
         if: ${{ env.SOCKS_PROXY_URL != '' }}
         run: |
+          echo "Starting gost proxy..."
           # URL 编码处理（Python 自动处理特殊字符）
           python3 << 'EOF'
           import os
           import urllib.parse
           import subprocess
+          import time
           
           proxy_url = os.environ.get('SOCKS_PROXY_URL', '')
           if proxy_url:
@@ -61,16 +63,24 @@ jobs:
               cmd = f"nohup gost -L=socks5://127.0.0.1:1080 -F={encoded_url} > /tmp/gost.log 2>&1 &"
               subprocess.run(cmd, shell=True)
               print("Gost proxy started on 127.0.0.1:1080")
+              
+              # 等待 gost 启动
+              time.sleep(3)
           EOF
           
-          sleep 3
           # 验证 gost 是否运行
-          ps aux | grep gost || echo "Warning: gost may not be running"
+          echo "Checking gost process..."
+          ps aux | grep gost | grep -v grep || echo "Warning: gost may not be running"
+          
           # 显示 gost 日志（隐藏敏感信息）
           if [ -f /tmp/gost.log ]; then
-            echo "Gost log:"
+            echo "Gost log (first 20 lines):"
             head -20 /tmp/gost.log
           fi
+          
+          # 测试代理连接
+          echo "Testing proxy connection..."
+          curl -x socks5://127.0.0.1:1080 -I https://www.google.com --connect-timeout 10 || echo "Proxy test failed"
       
       - name: Install dependencies
         working-directory: scripts
