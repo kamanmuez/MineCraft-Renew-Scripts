@@ -2,8 +2,8 @@ name: KeritCloud Auto Renew
 
 on:
   schedule:
-    # 每天 UTC 时间 0:00 运行（北京时间 8:00）
-    - cron: '0 0 * * *'
+    # 每天 UTC 时间 4:00 运行（北京时间 12:00）
+    - cron: '0 4 * * *'
   workflow_dispatch:  # 支持手动触发
 
 jobs:
@@ -32,9 +32,17 @@ jobs:
       
       - name: Setup Gost Proxy
         working-directory: scripts
+        env:
+          SOCKS_PROXY_URL: ${{ secrets.SOCKS_PROXY_URL }}
         run: |
-          # 从 main.py 中读取 SOCKS_PROXY 配置
-          SOCKS_PROXY=$(python3 -c "import sys; sys.path.insert(0, '.'); from main import get_socks_proxy; print(get_socks_proxy() or '')")
+          # 优先从环境变量读取，如果没有则从 main.py 读取
+          if [ -n "$SOCKS_PROXY_URL" ]; then
+            SOCKS_PROXY="$SOCKS_PROXY_URL"
+            echo "使用环境变量中的代理配置"
+          else
+            SOCKS_PROXY=$(python3 -c "import sys; sys.path.insert(0, '.'); from main import get_socks_proxy; print(get_socks_proxy() or '')")
+            echo "使用脚本中的代理配置"
+          fi
           
           if [ -z "$SOCKS_PROXY" ]; then
             echo "⚠️ 未配置 SOCKS 代理，跳过代理设置"
