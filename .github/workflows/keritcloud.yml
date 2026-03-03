@@ -52,7 +52,30 @@ jobs:
             echo "✅ Gost 进程运行正常"
           else
             echo "❌ Gost 进程未运行"
+            cat gost.log 2>/dev/null || echo "无 gost.log 文件"
             exit 1
+          fi
+          
+          # 验证端口监听
+          echo "检查端口 1080 监听状态..."
+          if netstat -tuln | grep -q ":1080 "; then
+            echo "✅ 端口 1080 正在监听"
+          else
+            echo "❌ 端口 1080 未监听"
+            netstat -tuln | grep 1080 || echo "未找到 1080 端口"
+            cat gost.log 2>/dev/null || echo "无 gost.log 文件"
+            exit 1
+          fi
+          
+          # 测试代理连接
+          echo "测试代理连接..."
+          if curl -x socks5://127.0.0.1:1080 https://www.google.com -I --max-time 10 --silent --fail > /dev/null 2>&1; then
+            echo "✅ 代理连接测试成功"
+          else
+            echo "⚠️ 代理连接测试失败（可能是上游代理问题）"
+            echo "Gost 日志:"
+            cat gost.log 2>/dev/null || echo "无 gost.log 文件"
+            echo "注意: 这可能不影响实际使用，继续执行..."
           fi
       
       - name: Install dependencies
