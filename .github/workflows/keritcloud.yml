@@ -24,28 +24,30 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Install Gost
-        if: ${{ secrets.SOCKS_PROXY_URL != '' }}
+      - name: Setup Gost Proxy
+        env:
+          SOCKS_PROXY_URL: ${{ secrets.SOCKS_PROXY_URL }}
         run: |
+          if [ -z "$SOCKS_PROXY_URL" ]; then
+            echo "⚠️ 未配置 SOCKS 代理，跳过代理设置"
+            exit 0
+          fi
+          
+          echo "配置的代理: ${SOCKS_PROXY_URL%%:*}://***"
+          
+          # 下载并安装 Gost
           wget -q https://github.com/ginuerzh/gost/releases/download/v2.11.5/gost-linux-amd64-2.11.5.gz
           gunzip gost-linux-amd64-2.11.5.gz
           sudo mv gost-linux-amd64-2.11.5 /usr/local/bin/gost
           sudo chmod +x /usr/local/bin/gost
           echo "✅ Gost 安装完成"
-      
-      - name: Start Gost Proxy
-        if: ${{ secrets.SOCKS_PROXY_URL != '' }}
-        env:
-          SOCKS_PROXY_URL: ${{ secrets.SOCKS_PROXY_URL }}
-        run: |
-          echo "配置的代理: ${SOCKS_PROXY_URL%%:*}://***"
+          
+          # 启动 Gost
           nohup gost -L=:1080 -F="$SOCKS_PROXY_URL" > gost.log 2>&1 &
           sleep 5
           echo "✅ Gost 已启动"
-      
-      - name: Verify Gost Process
-        if: ${{ secrets.SOCKS_PROXY_URL != '' }}
-        run: |
+          
+          # 验证进程
           if pgrep -x "gost" > /dev/null; then
             echo "✅ Gost 进程运行正常"
           else
