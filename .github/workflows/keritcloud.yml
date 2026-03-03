@@ -36,12 +36,41 @@ jobs:
           SOCKS_PROXY_URL: ${{ secrets.SOCKS_PROXY_URL }}
         if: ${{ env.SOCKS_PROXY_URL != '' }}
         run: |
-          # 启动 gost 作为后台进程，将带认证的 SOCKS5 转换为本地无认证代理
-          nohup gost -L=socks5://127.0.0.1:1080 -F=$SOCKS_PROXY_URL > /tmp/gost.log 2>&1 &
+          # URL 编码处理（Python 自动处理特殊字符）
+          python3 << 'EOF'
+          import os
+          import urllib.parse
+          import subprocess
+          
+          proxy_url = os.environ.get('SOCKS_PROXY_URL', '')
+          if proxy_url:
+              # 解析并重新编码 URL 以确保特殊字符正确处理
+              parsed = urllib.parse.urlparse(proxy_url)
+              
+              # 如果有用户名和密码，确保它们被正确编码
+              if parsed.username and parsed.password:
+                  username = urllib.parse.quote(parsed.username, safe='')
+                  password = urllib.parse.quote(parsed.password, safe='')
+                  netloc = f"{username}:{password}@{parsed.hostname}:{parsed.port}"
+                  encoded_url = f"{parsed.scheme}://{netloc}"
+              else:
+                  encoded_url = proxy_url
+              
+              print(f"Starting gost with proxy (credentials hidden)")
+              # 启动 gost
+              cmd = f"nohup gost -L=socks5://127.0.0.1:1080 -F={encoded_url} > /tmp/gost.log 2>&1 &"
+              subprocess.run(cmd, shell=True)
+              print("Gost proxy started on 127.0.0.1:1080")
+          EOF
+          
           sleep 3
-          echo "Gost proxy started on 127.0.0.1:1080"
           # 验证 gost 是否运行
           ps aux | grep gost || echo "Warning: gost may not be running"
+          # 显示 gost 日志（隐藏敏感信息）
+          if [ -f /tmp/gost.log ]; then
+            echo "Gost log:"
+            head -20 /tmp/gost.log
+          fi
       
       - name: Install dependencies
         working-directory: scripts
