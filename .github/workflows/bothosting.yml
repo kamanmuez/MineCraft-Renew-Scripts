@@ -35,6 +35,8 @@ jobs:
         mkdir -p extensions/nopecha
         wget -qO extensions/nopecha/ext.zip https://github.com/NopeCHALLC/nopecha-extension/releases/download/0.5.5/chromium.zip
         unzip -q extensions/nopecha/ext.zip -d extensions/nopecha/unpacked/
+        ls -la extensions/nopecha/unpacked/
+        test -f extensions/nopecha/unpacked/manifest.json && echo "✅ Extension installed" || echo "❌ Extension missing"
         
     - name: Run claim script
       working-directory: scripts
