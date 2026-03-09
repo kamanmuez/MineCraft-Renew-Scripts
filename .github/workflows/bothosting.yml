@@ -1,0 +1,54 @@
+name: Bot-Hosting Auto Claim
+
+on:
+  schedule:
+    - cron: '0 1,13 * * *'  # 北京时间 9:00 和 21:00
+  workflow_dispatch:
+
+jobs:
+  claim-coins:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout private repo
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.repository_owner }}/Bothosting-Auto-Claim
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        path: scripts
+      
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      working-directory: scripts
+      run: |
+        pip install -r requirements.txt -q > /dev/null 2>&1
+        playwright install chromium > /dev/null 2>&1
+        playwright install-deps chromium > /dev/null 2>&1
+        
+    - name: Setup NopeCHA extension
+      working-directory: scripts
+      run: |
+        mkdir -p extensions/nopecha
+        wget -qO extensions/nopecha/ext.zip https://github.com/NopeCHALLC/nopecha-extension/releases/download/0.5.5/chromium.zip
+        unzip -q extensions/nopecha/ext.zip -d extensions/nopecha/unpacked/
+        
+    - name: Run claim script
+      working-directory: scripts
+      env:
+        DISCORD_SESSION: ${{ secrets.DISCORD_SESSION }}
+      run: |
+        echo "$DISCORD_SESSION" > BOTHOSTING_DISCORD_SESSION.json
+        python main.py
+      
+    - name: Upload artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: results-${{ github.run_number }}
+        path: scripts/*.json
+        retention-days: 7
+        if-no-files-found: ignore
