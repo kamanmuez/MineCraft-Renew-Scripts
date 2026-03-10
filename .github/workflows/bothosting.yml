@@ -64,39 +64,27 @@ jobs:
     - name: Install dependencies
       working-directory: scripts
       run: |
-        pip install -r requirements.txt -q > /dev/null 2>&1
-        playwright install chromium > /dev/null 2>&1
-        playwright install-deps chromium > /dev/null 2>&1
+        pip install -r requirements.txt
+        playwright install chromium
+        playwright install-deps chromium
         
     - name: Setup NopeCHA extension
       working-directory: scripts
       run: |
         mkdir -p extensions/nopecha/unpacked
         cd extensions/nopecha
+        # 使用普通版本（chromium.zip）
         wget -qO chromium.zip https://github.com/NopeCHALLC/nopecha-extension/releases/download/0.5.5/chromium.zip
         unzip -q chromium.zip -d unpacked/
-        
-        # 设置权限
         chmod -R 755 unpacked/
-        
-        # 验证文件
-        echo "📋 Extension files:"
-        ls -la unpacked/
-        
-        # 显示 manifest.json 内容
-        echo "📄 Manifest content:"
-        cat unpacked/manifest.json
-        
-        # 获取绝对路径
-        echo "📂 Absolute path:"
-        pwd
-        realpath unpacked/
+        echo "✅ NopeCHA 扩展已安装"
         
     - name: Run claim script
       working-directory: scripts
       env:
         SOCKS_PROXY_URL: ${{ secrets.SOCKS_PROXY_URL }}
         USE_GOST_PROXY: ${{ secrets.SOCKS_PROXY_URL != '' && 'true' || 'false' }}
+        NOPECHA_API_KEY: ${{ secrets.NOPECHA_API_KEY }}
       run: xvfb-run -a python main.py
       
     - name: Upload artifacts
