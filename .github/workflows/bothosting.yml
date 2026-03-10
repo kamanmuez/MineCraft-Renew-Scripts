@@ -25,15 +25,15 @@ jobs:
         
     - name: Setup Gost Proxy
       env:
-        SOCKS_PROXY_URL: ${{ secrets.SOCKS_PROXY_URL }}
+        BOTHOSTING_SOCKS_PROXY: ${{ secrets.BOTHOSTING_SOCKS_PROXY }}
       run: |
         # 如果没有环境变量，跳过 Gost 设置
-        if [ -z "$SOCKS_PROXY_URL" ]; then
+        if [ -z "$BOTHOSTING_SOCKS_PROXY" ]; then
           echo "ℹ️ 未配置代理，跳过 Gost 设置"
           exit 0
         fi
         
-        echo "🌐 使用环境变量代理: ${SOCKS_PROXY_URL%%:*}://***"
+        echo "🌐 使用环境变量代理: ${BOTHOSTING_SOCKS_PROXY%%:*}://***"
         
         # 安装 Gost
         wget -q https://github.com/ginuerzh/gost/releases/download/v2.11.5/gost-linux-amd64-2.11.5.gz
@@ -42,7 +42,7 @@ jobs:
         sudo chmod +x /usr/local/bin/gost
         
         # 启动 Gost
-        nohup gost -L=:1080 -F="$SOCKS_PROXY_URL" > gost.log 2>&1 &
+        nohup gost -L=:1080 -F="$BOTHOSTING_SOCKS_PROXY" > gost.log 2>&1 &
         sleep 5
         
         # 验证
@@ -82,8 +82,8 @@ jobs:
     - name: Run claim script
       working-directory: scripts
       env:
-        SOCKS_PROXY_URL: ${{ secrets.SOCKS_PROXY_URL }}
-        USE_GOST_PROXY: ${{ secrets.SOCKS_PROXY_URL != '' && 'true' || 'false' }}
+        BOTHOSTING_SOCKS_PROXY: ${{ secrets.BOTHOSTING_SOCKS_PROXY }}
+        USE_GOST_PROXY: ${{ secrets.BOTHOSTING_SOCKS_PROXY != '' && 'true' || 'false' }}
         NOPECHA_API_KEY: ${{ secrets.NOPECHA_API_KEY }}
       run: xvfb-run -a python main.py
       
