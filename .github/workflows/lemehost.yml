@@ -2,7 +2,7 @@ name: Lemehost Cookie Autosave
 
 on:
   schedule:
-    # 每天 UTC 4:00（北京时间 12:00）运行
+    # 每小时运行一次
     - cron: '0 * * * *'
   workflow_dispatch:  # 支持手动触发
 
@@ -35,6 +35,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LEMEHOST_ACCOUNTS: ${{ secrets.LEMEHOST_ACCOUNTS }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python main.py
       
       - name: Commit and push cookies to private repo
