@@ -2,8 +2,8 @@ name: Epichost Auto Renew
 
 on:
   schedule:
-    # 每天中午12点运行（北京时间 UTC+8，对应 UTC 时间 04:00）
-    - cron: '0 4 * * *'
+    # 每 6小时 运行一次
+    - cron: '0 */6 * * *'
   
   workflow_dispatch:  # 允许手动触发
 
