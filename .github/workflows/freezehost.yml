@@ -14,7 +14,7 @@ jobs:
     - name: Checkout Private Repo
       uses: actions/checkout@v4
       with:
-        repository: ${{ github.repository_owner }}/FreezeHost-Auto-Renew
+        repository: ${{ github.repository_owner }}/Game-Auto-Scripts
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
         path: scripts
     
@@ -23,12 +23,13 @@ jobs:
       with:
         python-version: '3.11'
         cache: 'pip'
-        cache-dependency-path: 'scripts/requirements.txt'
+        cache-dependency-path: 'scripts/Freezehost/requirements.txt'
     
     - name: Install Dependencies
+      working-directory: scripts/Freezehost
       run: |
         python -m pip install --upgrade pip
-        pip install -r scripts/requirements.txt
+        pip install -r requirements.txt
     
     - name: Install Playwright Browser
       run: |
@@ -40,7 +41,7 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TZ: Asia/Shanghai
-      working-directory: scripts
+      working-directory: scripts/Freezehost
       run: python main.py
     
     - name: Upload Server Info & API Responses
@@ -49,14 +50,14 @@ jobs:
       with:
         name: server-info-${{ github.run_number }}
         path: |
-          scripts/server_info.json
-          scripts/api_*.json
+          scripts/Freezehost/server_info.json
+          scripts/Freezehost/api_*.json
         if-no-files-found: ignore
         retention-days: 30
     
     - name: Commit Updated Session
       if: success()
-      working-directory: scripts
+      working-directory: scripts/Freezehost
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -69,7 +70,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: error-screenshots
-        path: scripts/screenshots/
+        path: scripts/Freezehost/screenshots/
         if-no-files-found: ignore
     
     - name: Failure Notification
