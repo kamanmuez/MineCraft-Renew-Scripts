@@ -1,9 +1,9 @@
-name: EpicHost Auto Renew
+name: Epichost Auto Renew
 
 on:
-  # 定时运行：每4小时执行一次
   schedule:
-    - cron: '0 */4 * * *'  # 每4小时执行一次 (0点、4点、8点、12点、16点、20点 UTC)
+    # 每天中午12点运行（北京时间 UTC+8，对应 UTC 时间 04:00）
+    - cron: '0 4 * * *'
   
   workflow_dispatch:  # 允许手动触发
 
@@ -16,7 +16,7 @@ jobs:
     - name: Checkout private script repository
       uses: actions/checkout@v4
       with:
-        repository: ${{ github.repository_owner }}/EpicHost-Auto-Renew  # 格式: username/repo-name
+        repository: ${{ github.repository_owner }}/Game-Auto-Scripts  # 格式: username/repo-name
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}  # 需要有读取私库权限的 PAT
         path: scripts
     
@@ -37,7 +37,7 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TZ: Asia/Shanghai
-      working-directory: scripts
+      working-directory: scripts/Epichost
       run: python main.py
     
     - name: Upload JSON artifacts
@@ -46,8 +46,8 @@ jobs:
       with:
         name: renew-data-${{ github.run_number }}
         path: |
-          scripts/servers_list.json
-          scripts/servers_info.json
-          scripts/renew_response_*.json
+          scripts/Epichost/servers_list.json
+          scripts/Epichost/servers_info.json
+          scripts/Epichost/renew_response_*.json
         retention-days: 30
         if-no-files-found: ignore
